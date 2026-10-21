@@ -6,28 +6,40 @@
   /* ---------- background video (lazy, media-query source, reduced-motion = poster only) ---------- */
   var v = document.getElementById("heroVideo");
   var saveData = navigator.connection && navigator.connection.saveData;
+  function tryPlay() {
+    if (!v || !v.dataset.loaded) return;
+    v.muted = true; v.defaultMuted = true;
+    var p = v.play(); if (p && p.catch) p.catch(function () { armGesture(); });
+  }
+  var armed = false;
+  function armGesture() { // iOS Low Power Mode etc. block autoplay: start on first touch/scroll instead
+    if (armed) return; armed = true;
+    var go = function () { tryPlay(); ["touchstart","pointerdown","scroll","keydown"].forEach(function (e) { window.removeEventListener(e, go, true); }); armed = false; };
+    ["touchstart","pointerdown","scroll","keydown"].forEach(function (e) { window.addEventListener(e, go, { capture: true, passive: true }); });
+  }
   function loadVideo() {
-    if (!v || reduce.matches || saveData) return;
+    if (!v || saveData) return; // video plays even with Reduce Motion on (user wants the reel visible); particles still respect it
     var m = mobileMQ.matches ? "mobile" : "desktop";
     if (v.dataset.loaded === m) return;
     v.dataset.loaded = m;
+    v.muted = true; v.defaultMuted = true;
+    v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.setAttribute("autoplay", "");
+    v.preload = "auto";
     v.innerHTML = "";
-    [["webm", "video/webm"], ["mp4", "video/mp4"]].forEach(function (t) {
+    [["mp4", "video/mp4"], ["webm", "video/webm"]].forEach(function (t) { // MP4 first: most reliable on iPhone Safari
       var s = document.createElement("source"); s.src = v.dataset[m + t[0].charAt(0).toUpperCase() + t[0].slice(1)]; s.type = t[1]; v.appendChild(s);
     });
     v.load();
-    var p = v.play(); if (p && p.catch) p.catch(function () {});
+    tryPlay();
   }
   if (v) {
     v.addEventListener("playing", function () { v.classList.add("is-playing"); });
-    if (document.readyState === "complete") loadVideo(); else window.addEventListener("load", loadVideo);
+    v.addEventListener("canplay", tryPlay);
+    if (document.readyState !== "loading") loadVideo(); else document.addEventListener("DOMContentLoaded", loadVideo);
     mobileMQ.addEventListener && mobileMQ.addEventListener("change", loadVideo);
-    reduce.addEventListener && reduce.addEventListener("change", function () {
-      if (reduce.matches) { v.pause(); v.classList.remove("is-playing"); } else { v.dataset.loaded = ""; loadVideo(); }
-    });
     document.addEventListener("visibilitychange", function () {
-      if (!v.dataset.loaded || reduce.matches) return;
-      if (document.hidden) v.pause(); else { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      if (!v.dataset.loaded) return;
+      if (document.hidden) v.pause(); else tryPlay();
     });
   }
 
@@ -103,7 +115,7 @@
     if (modal.hidden) return;
     frame.innerHTML = "";                 // removing the iframe stops playback
     modal.hidden = true; document.body.classList.remove("scroll-lock");
-    if (v && v.dataset.resume) { delete v.dataset.resume; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    if (v && v.dataset.resume) { delete v.dataset.resume; tryPlay(); }
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
   if (grid) grid.addEventListener("click", function (e) { var b = e.target.closest(".vcard"); if (b) openVideo(b.dataset.id, b.dataset.title); });
