@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var mobileMQ = window.matchMedia("(max-width: 699.98px)");
+  var mobileMQ = window.matchMedia("(orientation: portrait)"); // portrait = 720x1280 reel, landscape = 1080p reel
 
   /* ---------- background video (lazy, media-query source, reduced-motion = poster only) ---------- */
   var v = document.getElementById("heroVideo");
@@ -38,9 +38,16 @@
     window.LogoFX.loadLogo(LOGO_SOURCES).then(function (img) {
       if (!img) return;
       document.querySelectorAll(".fx-btn").forEach(function (btn) {
-        var fx = new window.LogoFX(btn.querySelector("canvas.fx"), img, { pad: 0.04 });
-        window.LogoFX.bind(btn, fx); fxs.push(fx);
+        var fx = new window.LogoFX(btn.querySelector("canvas.fx"), img, { bleedFX: 0.12 / 1.24, bleedFY: 0.45 / 1.9 });
+        window.LogoFX.bindButton(btn, fx); fxs.push(fx);
       });
+      var hero = document.getElementById("heroLogo");
+      if (hero) {
+        var hfx = new window.LogoFX(hero.querySelector("canvas.hero-fx"), img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
+        window.LogoFX.bindStage(hero, hfx); fxs.push(hfx);
+        hero.classList.add("fx-ready");
+        window.QB1_heroFX = hfx;
+      }
     });
     var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fxs.forEach(function (f) { f.resize(); }); }, 150); });
   }

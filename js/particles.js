@@ -1,19 +1,39 @@
 /* QB1 logo particle hover: disintegrate + melt back.
-   Technique adapted (rewritten) from the Mist Club prototype: the logo IMAGE is sampled
-   pixel by pixel; particles keep the sampled colours; on activate they scatter with
-   curl-like drift + gravity, on release they return on a critically damped spring
-   (staggered so it "melts" home), then crossfade back to the crisp image.
-   One instance per <canvas>; each only animates while it is not settled. */
+   Faithful port of the Mist Club prototype (/workspace/demos/mist-hover-effect, "Designer v2" values):
+   - logo IMAGE sampled pixel by pixel (alpha >= 140), colours never recoloured, per-pixel alpha kept
+   - density: Mist budget (9000 desktop / 4500 small or coarse) scaled to the logo's on-screen area
+   - scatter: radial burst (38..203 px/s x distance factor), +/-0.31 rad spread, sideways-biased tangential
+     drift, gentle lift; then curl-like swirl (22), gravity 110 px/s^2, drag exp(-1.5 dt), soft twinkle
+   - melt: per-particle stagger min(d/900,0.55)+seed*0.16, critically damped spring k=90, c=2*sqrt(k),
+     snap when d<0.55 && v<14; then 180 ms crossfade back to the crisp image
+   - additive glow pass (8%, 4.5x sprite) only while moving
+   - reduced motion: no movement, opacity crossfade to 12%
+   Velocities/gravity are scaled to the logo size so small button logos feel like the big Mist stage.
+   The canvas may be larger than the logo (CSS bleed) so particles can drift past the edges. */
 (function () {
   "use strict";
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   var coarse = window.matchMedia("(pointer: coarse)");
 
+  var spriteCache = new Map();
+  function glowSprite(r, g, b) {
+    var qr = r >> 4, qg = g >> 4, qb = b >> 4, key = (qr << 8) | (qg << 4) | qb;
+    var s = spriteCache.get(key); if (s) return s;
+    s = document.createElement("canvas"); s.width = 32; s.height = 32;
+    var c = s.getContext("2d"), gr = c.createRadialGradient(16, 16, 0, 16, 16, 16);
+    var cr = (qr << 4) + 8, cg = (qg << 4) + 8, cb = (qb << 4) + 8;
+    gr.addColorStop(0, "rgba(" + cr + "," + cg + "," + cb + ",0.85)");
+    gr.addColorStop(0.4, "rgba(" + cr + "," + cg + "," + cb + ",0.28)");
+    gr.addColorStop(1, "rgba(" + cr + "," + cg + "," + cb + ",0)");
+    c.fillStyle = gr; c.fillRect(0, 0, 32, 32);
+    if (spriteCache.size > 220) spriteCache.clear();
+    spriteCache.set(key, s); return s;
+  }
+
   function LogoFX(canvas, img, opts) {
     this.c = canvas; this.ctx = canvas.getContext("2d");
     this.img = img; this.o = opts || {};
-    this.cap = this.o.cap || (coarse.matches ? 700 : 1400);
-    this.p = []; this.mode = "home"; this.fade = 1; this.alpha = 1;
+    this.p = []; this.mode = "home"; this.settled = true; this.fade = 1; this.alpha = 1;
     this.running = false; this.last = 0; this.t = 0;
     this.resize();
   }
@@ -26,58 +46,81 @@
     this.sample(); this.draw();
   };
   LogoFX.prototype.sample = function () {
-    var iw = this.img.naturalWidth || 600, ih = this.img.naturalHeight || 200;
-    var pad = this.o.pad != null ? this.o.pad : 0.08;
-    var aw = this.W * (1 - 2 * pad), ah = this.H * (1 - 2 * pad);
+    var iw = this.img.naturalWidth || 1200, ih = this.img.naturalHeight || 675;
+    // logo box inside the (possibly bleeding) canvas: bleed is in CSS px on each side
+    var bx = (this.o.bleedFX || 0) * this.W, by = (this.o.bleedFY || 0) * this.H;
+    var aw = Math.max(10, this.W - 2 * bx), ah = Math.max(10, this.H - 2 * by);
     var s = Math.min(aw / iw, ah / ih);
-    var w = Math.max(2, Math.round(iw * s)), h = Math.max(2, Math.round(ih * s));
+    var w = iw * s, h = ih * s;
     this.home = { x: (this.W - w) / 2, y: (this.H - h) / 2, w: w, h: h };
-    // sample at 2x display size for density, then decimate to the cap
-    var sw = w * 2, sh = h * 2;
+    this.k = Math.max(0.3, Math.min(1, w / 760));               // physics scale vs Mist stage
+    // sample at bounded resolution (Mist: 880x520), never below 2x display for small logos
+    var ss = Math.min(880 / iw, 520 / ih); ss = Math.max(ss, Math.min(2 * w / iw, 3));
+    var sw = Math.max(2, Math.round(iw * ss)), sh = Math.max(2, Math.round(ih * ss));
     var off = document.createElement("canvas"); off.width = sw; off.height = sh;
     var o = off.getContext("2d", { willReadFrequently: true });
+    o.imageSmoothingEnabled = true; try { o.imageSmoothingQuality = "high"; } catch (e) {}
     o.drawImage(this.img, 0, 0, sw, sh);
     var d; try { d = o.getImageData(0, 0, sw, sh).data; } catch (e) { this.p = []; return; }
-    var opaque = 0, i; for (i = 3; i < d.length; i += 4) if (d[i] > 140) opaque++;
-    var step = Math.max(1, Math.ceil(Math.sqrt(opaque / this.cap)));
-    var list = [];
-    for (var y = 0; y < sh; y += step) for (var x = 0; x < sw; x += step) {
-      var k = (y * sw + x) * 4;
-      if (d[k + 3] > 140) {
-        var hx = this.home.x + x / 2, hy = this.home.y + y / 2;
-        list.push({ hx: hx, hy: hy, x: hx, y: hy, vx: 0, vy: 0, delay: 0,
-          col: "rgb(" + d[k] + "," + d[k + 1] + "," + d[k + 2] + ")",
-          seed: Math.random() * 6.283, size: Math.max(1.2, step * 0.55) * (0.85 + Math.random() * 0.4) });
+    var ALPHA = 140, opaque = 0, i;
+    for (i = 3; i < d.length; i += 4) if (d[i] >= ALPHA) opaque++;
+    if (!opaque) { this.p = []; return; }
+    // Mist budget caps (9000 desktop / 4500 small or coarse)
+    var small = coarse.matches || Math.min(window.innerWidth, window.innerHeight) < 620 || window.innerWidth < 700;
+    var base = small ? 4500 : 9000;
+    var cap = Math.round(Math.min(base, Math.max(600, (w * h) / 12))); // Mist budget, ~1 particle per 12 css px^2 of logo box
+    var step = Math.max(1, Math.ceil(Math.sqrt(opaque / cap)));
+    var list;
+    while (true) {
+      list = [];
+      for (var y = 0; y < sh; y += step) for (var x = 0; x < sw; x += step) {
+        var q = (y * sw + x) * 4, a = d[q + 3];
+        if (a >= ALPHA) list.push({ nx: x / (sw - 1), ny: y / (sh - 1), r: d[q], g: d[q + 1], b: d[q + 2], a: a / 255,
+          x: 0, y: 0, vx: 0, vy: 0, hx: 0, hy: 0, delay: 0, seed: Math.random() * Math.PI * 2, size: 1 });
       }
+      if (list.length <= cap || step > 40) break;
+      step++;
     }
-    this.p = list; this.mode = "home"; this.fade = 1;
+    // Mist size rule: min(4.8, max(1.6, step*1.45)) in sample px, converted to display px
+    var disp = (step * 1.45) * (w / sw);
+    var sz = Math.min(4.8, Math.max(1.1, disp));
+    for (i = 0; i < list.length; i++) {
+      var p = list[i]; p.hx = this.home.x + p.nx * w; p.hy = this.home.y + p.ny * h; p.x = p.hx; p.y = p.hy;
+      p.size = sz * (0.8 + Math.random() * 0.45); p.col = "rgb(" + p.r + "," + p.g + "," + p.b + ")";
+    }
+    this.p = list; this.mode = "home"; this.settled = true; this.fade = 1;
   };
+  LogoFX.prototype.isOpen = function () { return this.mode === "scattered" || this.mode === "faded"; };
   LogoFX.prototype.scatter = function (cx, cy) {
     if (!this.p.length) return;
+    this.settled = false;
+    if (reduce.matches) { this.mode = "faded"; this.start(); return; }
     if (cx == null) { cx = this.W / 2; cy = this.H / 2; }
-    this.mode = "scattered";
-    if (!reduce.matches) {
-      var str = this.o.strength || 1;
-      for (var i = 0; i < this.p.length; i++) {
-        var q = this.p[i], dx = q.x - cx, dy = q.y - cy, dist = Math.hypot(dx, dy) || 1;
-        var ux = dx / dist, uy = dy / dist;
-        var sp = (30 + Math.random() * 120) * str * (0.5 + Math.min(dist / 120, 1) * 0.7);
-        var tan = (Math.random() - 0.35) * 40;
-        q.vx = ux * sp - uy * tan + (Math.random() - 0.5) * 20;
-        q.vy = uy * sp + ux * tan - 26 - Math.random() * 30; // lift like spray, gravity then wins
-      }
+    var k = this.k, str = this.o.strength || 1;
+    for (var i = 0; i < this.p.length; i++) {
+      var p = this.p[i], dx = p.x - cx, dy = p.y - cy, dist = Math.hypot(dx, dy) || 1;
+      var ux = dx / dist, uy = dy / dist;
+      var speed = (38 + Math.random() * 165) * str * (0.55 + Math.min(dist / (260 * k), 1) * 0.7) * k;
+      var spread = (Math.random() - 0.5) * 0.62, cs = Math.cos(spread), sn = Math.sin(spread);
+      var tangential = (Math.random() - 0.35) * 52 * k;
+      p.vx = (ux * cs - uy * sn) * speed + (-uy) * tangential + (Math.random() - 0.5) * 24 * k;
+      p.vy = (ux * sn + uy * cs) * speed + (ux) * tangential - (34 + Math.random() * 38) * k;
+      p.delay = 0;
     }
-    this.start();
+    this.mode = "scattered"; this.start();
   };
   LogoFX.prototype.reassemble = function () {
-    if (!this.p.length || this.mode === "home") return;
-    this.mode = "returning";
+    if (!this.p.length || this.mode === "home" || this.mode === "returning") return;
+    this.settled = false;
+    if (reduce.matches) { this.mode = "returning"; this.start(); return; }
+    var k = this.k;
     for (var i = 0; i < this.p.length; i++) {
-      var q = this.p[i], d = Math.hypot(q.x - q.hx, q.y - q.hy);
-      q.delay = Math.min(d / 700, 0.4) + (Math.sin(q.seed) * 0.5 + 0.5) * 0.12;
+      var p = this.p[i], d = Math.hypot(p.x - p.hx, p.y - p.hy) / k;
+      p.delay = Math.min(d / 900, 0.55) + (Math.sin(p.seed) * 0.5 + 0.5) * 0.16;
     }
-    this.start();
+    this.mode = "returning"; this.start();
   };
+  LogoFX.prototype.toggle = function (cx, cy) { if (this.isOpen()) this.reassemble(); else this.scatter(cx, cy); };
   LogoFX.prototype.start = function () {
     if (this.running) return;
     this.running = true; this.last = 0;
@@ -86,70 +129,107 @@
   };
   LogoFX.prototype.step = function (ts) {
     if (!this.last) this.last = ts;
-    var dt = Math.min((ts - this.last) / 1000, 0.033); this.last = ts; this.t += dt;
-    var target = this.mode === "home" ? 1 : 0;
-    this.fade += Math.sign(target - this.fade) * Math.min(Math.abs(target - this.fade), dt / 0.18);
-    if (reduce.matches) {                       // reduced motion: opacity only
-      var a = this.mode === "scattered" ? 0.15 : 1;
-      this.alpha += (a - this.alpha) * Math.min(1, dt * 8);
-      if (this.mode === "returning" && Math.abs(this.alpha - 1) < 0.01) { this.mode = "home"; this.alpha = 1; }
-      this.draw();
-      return Math.abs(this.alpha - a) > 0.01 || this.fade !== target;
+    var dt = Math.min((ts - this.last) / 1000, 0.033); this.last = ts;
+    if (dt <= 0) return true;
+    this.t += dt;
+    var target = (this.mode === "home" && this.settled) ? 1 : 0, fs = dt / 0.18;
+    this.fade = this.fade < target ? Math.min(target, this.fade + fs) : Math.max(target, this.fade - fs);
+
+    if (reduce.matches) {                       // opacity crossfade only
+      var aT = this.mode === "faded" ? 0.12 : 1;
+      this.alpha += (aT - this.alpha) * Math.min(1, dt * 7);
+      if (this.mode === "returning" && Math.abs(this.alpha - 1) < 0.01) { this.alpha = 1; this.mode = "home"; this.settled = true; }
+      this.draw(false);
+      return Math.abs(this.alpha - aT) > 0.005 || this.fade !== target || this.mode === "returning";
     }
     this.alpha = 1;
-    var all = true, g = this.o.gravity != null ? this.o.gravity : 120;
+    var k = this.k, g = 110 * k, all = true;
     for (var i = 0; i < this.p.length; i++) {
-      var q = this.p[i];
+      var p = this.p[i];
       if (this.mode === "scattered") {
-        q.vx += Math.cos(this.t * 0.9 + q.seed + q.y * 0.03) * 22 * dt;
-        q.vy += Math.sin(this.t * 0.8 + q.seed * 1.7 + q.x * 0.03) * 22 * dt + g * dt;
-        var drag = Math.exp(-1.6 * dt); q.vx *= drag; q.vy *= drag;
-        q.x += q.vx * dt; q.y += q.vy * dt; all = false;
+        var sw = 22 * k, sp = 0.012 / k;
+        p.vx += Math.cos(this.t * 0.9 + p.seed + p.y * sp) * sw * dt;
+        p.vy += Math.sin(this.t * 0.8 + p.seed * 1.7 + p.x * sp) * sw * dt;
+        p.vy += g * dt;
+        var drag = Math.exp(-1.5 * dt); p.vx *= drag; p.vy *= drag;
+        p.x += p.vx * dt; p.y += p.vy * dt; all = false;
       } else if (this.mode === "returning") {
-        if (q.delay > 0) { q.delay -= dt; all = false; continue; }
-        var k = 140, c = 2 * Math.sqrt(k);      // critically damped: no overshoot
-        q.vx += ((q.hx - q.x) * k - q.vx * c) * dt; q.vy += ((q.hy - q.y) * k - q.vy * c) * dt;
-        q.x += q.vx * dt; q.y += q.vy * dt;
-        if (Math.hypot(q.hx - q.x, q.hy - q.y) < 0.5 && Math.hypot(q.vx, q.vy) < 10) { q.x = q.hx; q.y = q.hy; q.vx = q.vy = 0; }
+        if (p.delay > 0) { p.delay -= dt; all = false; continue; }
+        var kk = 90, c = 2 * Math.sqrt(kk);
+        p.vx += ((p.hx - p.x) * kk - p.vx * c) * dt;
+        p.vy += ((p.hy - p.y) * kk - p.vy * c) * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (Math.hypot(p.hx - p.x, p.hy - p.y) < 0.55 && Math.hypot(p.vx, p.vy) < 14 * k) { p.x = p.hx; p.y = p.hy; p.vx = p.vy = 0; }
         else all = false;
       }
     }
-    if (this.mode === "returning" && all) this.mode = "home";
-    this.draw();
-    // keep animating while scattered (drift) for up to ~2.5 s, or until settled + faded in
+    if (this.mode === "returning" && all) { this.mode = "home"; this.settled = true; }
+    this.draw(this.mode !== "home");
     if (this.mode === "scattered") return true;
     return !(this.mode === "home" && this.fade >= 1);
   };
-  LogoFX.prototype.draw = function () {
+  LogoFX.prototype.draw = function (glow) {
     var x = this.ctx; x.clearRect(0, 0, this.W, this.H);
-    if (this.fade < 1 || reduce.matches) {
-      x.globalAlpha = this.alpha * (reduce.matches ? 1 : 1);
-      for (var i = 0; i < this.p.length; i++) {
-        var q = this.p[i]; x.fillStyle = q.col; x.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+    var reduced = reduce.matches;
+    if (this.fade < 1 || reduced) {
+      if (glow && !reduced) {
+        x.save(); x.globalCompositeOperation = "lighter"; x.globalAlpha = 0.08;
+        for (var i = 0; i < this.p.length; i++) {
+          var p = this.p[i], gs = p.size * 4.5;
+          x.drawImage(glowSprite(p.r, p.g, p.b), p.x - gs / 2, p.y - gs / 2, gs, gs);
+        }
+        x.restore();
+      }
+      if (!(reduced && this.fade >= 1)) {
+        for (var j = 0; j < this.p.length; j++) {
+          var q = this.p[j], tw = 1;
+          if (this.mode === "scattered") tw = 0.95 + 0.05 * Math.sin(this.t * 2.2 + q.seed * 3.1);
+          x.globalAlpha = Math.max(0, Math.min(1, q.a * this.alpha * tw));
+          x.fillStyle = q.col;
+          var s = q.size * (this.mode === "scattered" ? 0.92 : 1);
+          x.fillRect(q.x - s / 2, q.y - s / 2, s, s);
+        }
       }
     }
-    if (this.fade > 0 && !(reduce.matches && this.mode !== "home")) {
-      x.globalAlpha = Math.max(0, Math.min(1, this.fade)) * this.alpha;
+    if (this.fade > 0) {
+      x.globalAlpha = Math.max(0, Math.min(1, this.fade));
       x.drawImage(this.img, this.home.x, this.home.y, this.home.w, this.home.h);
     }
     x.globalAlpha = 1;
   };
 
-  /* Bind to a focusable element: mouse hover, keyboard focus, touch tap. */
-  LogoFX.bind = function (el, fx) {
-    function local(e) { var r = fx.c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
-    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") { var p = local(e); fx.scatter(p[0], p[1]); } });
+  function local(fx, e) { var r = fx.c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+
+  /* Nav button: hover (mouse) scatters, leave melts; keyboard focus scatters, blur melts;
+     touch tap = quick scatter then melt (navigation is delayed slightly by main.js). */
+  LogoFX.bindButton = function (el, fx) {
+    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") { var p = local(fx, e); fx.scatter(p[0], p[1]); } });
     el.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse" && document.activeElement !== el) fx.reassemble(); });
     el.addEventListener("focus", function () { if (el.matches(":focus-visible")) fx.scatter(); });
     el.addEventListener("blur", function () { fx.reassemble(); });
     el.addEventListener("pointerdown", function (e) {
       if (e.pointerType === "mouse") return;
-      var p = local(e); fx.scatter(p[0], p[1]);
-      setTimeout(function () { fx.reassemble(); }, 650);
+      var p = local(fx, e); fx.scatter(p[0], p[1]);
+      setTimeout(function () { fx.reassemble(); }, 700);
     });
   };
+  /* Stage (hero logo), exactly like Mist: mouse hover scatters / leave melts; touch tap toggles
+     (tap vs scroll: <10px and <500ms); keyboard Enter/Space toggles; focus-visible scatters. */
+  LogoFX.bindStage = function (el, fx) {
+    function sync() { el.setAttribute("aria-pressed", fx.isOpen() ? "true" : "false"); }
+    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse" && !fx.isOpen()) { var p = local(fx, e); fx.scatter(p[0], p[1]); sync(); } });
+    el.addEventListener("pointerleave", function (e) { if (e.pointerType && e.pointerType !== "mouse") return; if (fx.isOpen()) { fx.reassemble(); sync(); } });
+    var down = null, t0 = 0;
+    el.addEventListener("pointerdown", function (e) { down = { x: e.clientX, y: e.clientY }; t0 = performance.now(); });
+    el.addEventListener("pointerup", function (e) {
+      if (!down) return; var moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), ms = performance.now() - t0; down = null;
+      if (moved > 10 || ms > 500 || e.pointerType === "mouse") return;
+      var p = local(fx, e); fx.toggle(p[0], p[1]); sync();
+    });
+    el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fx.toggle(); sync(); } });
+    el.addEventListener("blur", function () { if (fx.isOpen()) { fx.reassemble(); sync(); } });
+  };
 
-  /* Load the logo once (assets/logo.svg, falling back to the text placeholder). */
   LogoFX.loadLogo = function (srcs) {
     return srcs.reduce(function (pr, src) {
       return pr.then(function (img) {
@@ -158,5 +238,6 @@
       });
     }, Promise.resolve(null));
   };
+  reduce.addEventListener && reduce.addEventListener("change", function () { /* instances re-read reduce.matches each frame */ });
   window.LogoFX = LogoFX;
 })();

@@ -6,48 +6,46 @@
 <title>Quinten Bossche #98 · QB1 Racing · Stand-up jetski world champion</title>
 <meta name="description" content="Quinten Bossche #98, Belgian stand-up jetski racer from Ostend. UIM-ABP Aquabike Ski GP1 World Champion 2017, 2024 and 2026. Team QB1 Racing.">
 <meta name="theme-color" content="#0B0B14">
-<link rel="preload" as="image" href="media/qb1-poster-1080p.jpg" media="(min-width: 700px)">
-<link rel="preload" as="image" href="media/qb1-poster-720x1280.jpg" media="(max-width: 699.98px)">
+<link rel="preload" as="image" href="media/draft-winning-reel-poster-1080p.jpg" media="(orientation: landscape)">
+<link rel="preload" as="image" href="media/draft-winning-reel-poster-720x1280.jpg" media="(orientation: portrait)">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#racing">Skip to content</a>
 
 <header class="hero" id="top">
-  <!-- Background: poster first (picture, swapped by media query), video injected by JS
-       unless prefers-reduced-motion / Save-Data. -->
+  <!-- Background: winning reel. Poster first (picture, portrait vs landscape), video injected by JS
+       unless prefers-reduced-motion / Save-Data. Old qb1-loop-* files are kept in media/ but unused. -->
   <picture class="hero-poster" aria-hidden="true">
-    <source media="(max-width: 699.98px)" srcset="media/qb1-poster-720x1280.jpg">
-    <img src="media/qb1-poster-1080p.jpg" alt="" width="1920" height="1080" decoding="async" fetchpriority="high">
+    <source media="(orientation: portrait)" srcset="media/draft-winning-reel-poster-720x1280.jpg">
+    <img src="media/draft-winning-reel-poster-1080p.jpg" alt="" width="1920" height="1080" decoding="async" fetchpriority="high">
   </picture>
   <video class="hero-video" id="heroVideo" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"
-         data-mobile-webm="media/qb1-loop-720x1280.webm" data-mobile-mp4="media/qb1-loop-720x1280.mp4"
-         data-desktop-webm="media/qb1-loop-1080p.webm" data-desktop-mp4="media/qb1-loop-1080p.mp4"></video>
+         data-mobile-webm="media/draft-winning-reel-720x1280.webm" data-mobile-mp4="media/draft-winning-reel-720x1280.mp4"
+         data-desktop-webm="media/draft-winning-reel-1080p.webm" data-desktop-mp4="media/draft-winning-reel-1080p.mp4"></video>
   <div class="hero-shade" aria-hidden="true"></div>
 
-  <div class="topbar">
-    <a class="brand" href="#top" aria-label="QB1 Racing home">
-      <img class="brand-logo" src="assets/logo.svg" alt="QB1 Racing" width="160" height="41"
+  <div class="hero-center">
+    <div class="hero-logo" id="heroLogo" tabindex="0" role="button" aria-pressed="false"
+         aria-label="QB1 Racing logo. Hover, tap, or press Enter to scatter and reassemble it.">
+      <img class="hero-logo-img" src="assets/logo.svg" alt="QB1 Racing" width="2664" height="680"
            onerror="this.onerror=null;this.src='assets/logo-placeholder.svg'">
-    </a>
-    <span class="topbar-meta">Ostend, Belgium · UIM Aquabike Ski GP1</span>
-  </div>
-
-  <div class="hero-copy">
-    <p class="kicker">Stand-up jetski · Team QB1 Racing</p>
+      <canvas class="fx hero-fx" aria-hidden="true"></canvas>
+    </div>
     <h1 class="wordmark"><span class="wm-name">Quinten Bossche</span> <span class="wm-num">#98</span></h1>
+    <p class="kicker">Stand-up jetski · UIM Aquabike Ski GP1 · Ostend, Belgium</p>
     <p class="hero-stat"><strong>2026: 15 races, 15 wins.</strong> UIM-ABP Aquabike World Champion, Ski Division GP1.</p>
-  </div>
 
-  <nav class="logo-nav" aria-label="Sections">
-    <ul>
-      <li><a class="fx-btn" href="#racing"><canvas class="fx" aria-hidden="true"></canvas><span class="fx-label">Racing</span></a></li>
-      <li><a class="fx-btn" href="#results"><canvas class="fx" aria-hidden="true"></canvas><span class="fx-label">Results</span></a></li>
-      <li><a class="fx-btn" href="#media"><canvas class="fx" aria-hidden="true"></canvas><span class="fx-label">Media</span></a></li>
-      <li><a class="fx-btn" href="#partners"><canvas class="fx" aria-hidden="true"></canvas><span class="fx-label">Partners</span></a></li>
-      <li><a class="fx-btn" href="#contact"><canvas class="fx" aria-hidden="true"></canvas><span class="fx-label">Contact</span></a></li>
-    </ul>
-  </nav>
+    <nav class="logo-nav" aria-label="Sections">
+      <ul>
+        <li><a class="fx-btn" href="#racing"><span class="fx-wrap"><canvas class="fx" aria-hidden="true"></canvas></span><span class="fx-label">Racing</span></a></li>
+        <li><a class="fx-btn" href="#results"><span class="fx-wrap"><canvas class="fx" aria-hidden="true"></canvas></span><span class="fx-label">Results</span></a></li>
+        <li><a class="fx-btn" href="#media"><span class="fx-wrap"><canvas class="fx" aria-hidden="true"></canvas></span><span class="fx-label">Media</span></a></li>
+        <li><a class="fx-btn" href="#partners"><span class="fx-wrap"><canvas class="fx" aria-hidden="true"></canvas></span><span class="fx-label">Partners</span></a></li>
+        <li><a class="fx-btn" href="#contact"><span class="fx-wrap"><canvas class="fx" aria-hidden="true"></canvas></span><span class="fx-label">Contact</span></a></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
 <main>
