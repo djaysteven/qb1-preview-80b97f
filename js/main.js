@@ -46,18 +46,29 @@
   /* ---------- logo particle buttons ---------- */
   var LOGO_SOURCES = ["assets/logo.svg", "assets/logo-placeholder.svg"]; // swap the logo by replacing assets/logo.svg
   var fxs = [];
-  if (window.LogoFX) {
-    window.LogoFX.loadLogo(LOGO_SOURCES).then(function (img) {
+  var heroEl = document.getElementById("heroLogo");
+  function heroStatic() { if (heroEl) heroEl.classList.remove("fx-ready"); } // fall back to the plain <img>
+  if (heroEl && (window.HeroFX || window.LogoFX)) {
+    var srcs = window.LogoFX ? window.LogoFX.loadLogo(LOGO_SOURCES) : Promise.resolve(null);
+    srcs.then(function (img) {
       if (!img) return;
-      var hero = document.getElementById("heroLogo");
-      if (hero) {
-        var hfx = new window.LogoFX(hero.querySelector("canvas.hero-fx"), img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
-        window.LogoFX.bindStage(hero, hfx); fxs.push(hfx);
-        hero.classList.add("fx-ready");
+      try {
+        var cv = heroEl.querySelector("canvas.hero-fx");
+        if (!cv) return;
+        var hfx;
+        if (window.HeroFX) {
+          hfx = new window.HeroFX(cv, img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
+          window.HeroFX.bind(heroEl, hfx, heroEl.closest(".hero") || heroEl);
+        } else {
+          hfx = new window.LogoFX(cv, img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
+          window.LogoFX.bindStage(heroEl, hfx);
+        }
+        fxs.push(hfx);
+        heroEl.classList.add("fx-ready");
         window.QB1_heroFX = hfx;
-      }
-    });
-    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fxs.forEach(function (f) { f.resize(); }); }, 150); });
+      } catch (err) { heroStatic(); if (window.console) console.warn("hero fx disabled:", err); }
+    }).catch(heroStatic);
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fxs.forEach(function (f) { try { f.resize(); } catch (e) {} }); }, 150); });
   }
   // On touch, let the scatter play briefly before scrolling to the section.
   document.querySelectorAll(".fx-btn").forEach(function (btn) {
