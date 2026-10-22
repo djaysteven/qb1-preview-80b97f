@@ -49,10 +49,6 @@
   if (window.LogoFX) {
     window.LogoFX.loadLogo(LOGO_SOURCES).then(function (img) {
       if (!img) return;
-      document.querySelectorAll(".fx-btn").forEach(function (btn) {
-        var fx = new window.LogoFX(btn.querySelector("canvas.fx"), img, { bleedFX: 0.12 / 1.24, bleedFY: 0.45 / 1.9 });
-        window.LogoFX.bindButton(btn, fx); fxs.push(fx);
-      });
       var hero = document.getElementById("heroLogo");
       if (hero) {
         var hfx = new window.LogoFX(hero.querySelector("canvas.hero-fx"), img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
@@ -61,17 +57,6 @@
         window.QB1_heroFX = hfx;
       }
     });
-    // Touch screens have no hover: cycle the effect through the buttons, one at a time.
-    if (window.matchMedia("(hover: none)").matches) {
-      var ci = 0, cyc = function () {
-        if (reduce.matches || document.hidden) return setTimeout(cyc, 3000);
-        var btns = document.querySelectorAll(".fx-btn"); if (!btns.length) return;
-        var b = btns[ci++ % btns.length];
-        if (b._fxGlow) { b._fxGlow(); setTimeout(function () { b._fxRest(); }, 3600); }
-        setTimeout(cyc, 4200);
-      };
-      setTimeout(cyc, 2500);
-    }
     var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fxs.forEach(function (f) { f.resize(); }); }, 150); });
   }
   // On touch, let the scatter play briefly before scrolling to the section.
@@ -83,8 +68,8 @@
       if (!target) return;
       e.preventDefault();
       var go = function () { target.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth" }); history.replaceState(null, "", id); target.setAttribute("tabindex", "-1"); target.focus({ preventScroll: true }); };
-      // Touch: glow, short hold, crumble, then scroll (a full 2s hold would make taps feel broken).
-      if (touch && !reduce.matches && btn._fxGlow) btn._fxGlow(undefined, undefined, 650, function () { go(); btn._fxRest(); });
+      // Touch: let the glow show for a beat before scrolling.
+      if (touch && !reduce.matches) { btn.classList.add("tapped"); setTimeout(function () { go(); btn.classList.remove("tapped"); }, 260); }
       else go();
       touch = false;
     });

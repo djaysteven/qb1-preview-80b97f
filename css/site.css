@@ -244,3 +244,22 @@ body.scroll-lock{overflow:hidden}
   .fx-wrap{height:18px;width:66%}
   .fx-label{font-size:11.5px}
 }
+
+/* Option 1 (approved 2026-10-23): clean text-only glass buttons with a soft glow.
+   The particle effect lives only on the big hero logo. */
+.fx-btn{justify-content:center;gap:0;padding:16px 14px;min-height:52px;overflow:hidden}
+.fx-label{font-size:13px;letter-spacing:.2em;transition:color .3s,text-shadow .3s}
+.fx-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;
+  background:radial-gradient(120% 140% at 50% 120%,rgba(247,148,58,.32),rgba(124,58,237,.12) 55%,transparent 75%);transition:opacity .35s}
+.fx-btn::after{left:50%;right:50%;transition:left .35s ease,right .35s ease,opacity .25s}
+.fx-btn:hover,.fx-btn:focus-visible,.fx-btn.tapped{border-color:rgba(247,148,58,.7);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 18px rgba(247,148,58,.28),0 0 34px rgba(124,58,237,.18)}
+.fx-btn:hover::before,.fx-btn:focus-visible::before,.fx-btn.tapped::before{opacity:1}
+.fx-btn:hover::after,.fx-btn:focus-visible::after,.fx-btn.tapped::after{left:18%;right:18%;opacity:1}
+.fx-btn:hover .fx-label,.fx-btn:focus-visible .fx-label,.fx-btn.tapped .fx-label{color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,.9),0 0 10px rgba(247,148,58,.85),0 0 22px rgba(247,148,58,.45)}
+@media (orientation:portrait),(max-width:699.98px){
+  .fx-btn{min-height:48px;padding:14px 8px}
+  .fx-label{font-size:12px;letter-spacing:.14em}
+}
+@media (prefers-reduced-motion:reduce){.fx-btn,.fx-btn::before,.fx-btn::after,.fx-label{transition:none}}
