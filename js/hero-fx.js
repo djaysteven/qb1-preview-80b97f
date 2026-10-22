@@ -221,6 +221,22 @@
     this.glow = 1; this.trail = 1;
     this.wake();
   };
+  // Page scroll / pull: particles lag behind the page like they have weight (opposite to the scroll),
+  // a gentle, slightly uneven push through the fluid, then the springs pull them home.
+  P.scrollKick = function (vel) {
+    if (reduce.matches || !this.n) return;
+    var k = this.k, cap = 420 * k, tv = vel * 0.36;    // content moves up (scroll down) => particles lag and sink down, and vice versa
+    if (tv > cap) tv = cap; else if (tv < -cap) tv = -cap;
+    if (Math.abs(tv) < 6) return;
+    var GW = this.GW, GH = this.GH, t = this.t;
+    for (var gy = 0; gy < GH; gy++) for (var gx = 0; gx < GW; gx++) {
+      var i = gy * GW + gx, w = 0.55 + 0.45 * Math.sin(gx * 0.55 + gy * 0.35 + t * 2.1);
+      var target = tv * w, side = Math.sin(gy * 0.8 + gx * 0.2 + t) * 0.18 * tv;
+      this.v[i] += (target - this.v[i]) * 0.35;
+      this.u[i] += (side - this.u[i]) * 0.2;
+    }
+    this.wake();
+  };
   P.wake = function () { this.awake = true; this.idleFor = 0; this.start(); };
 
   /* ---------- loop ---------- */
@@ -429,6 +445,13 @@
       if (e.detail === 0) fx.burst(); else fx.burst(e.clientX, e.clientY);
     });
     el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lastBurst = performance.now(); fx.burst(); } });
+    // scroll and iOS pull / rubber-band: feed the scroll speed in, particles react the opposite way
+    var sy = window.scrollY, st = performance.now();
+    window.addEventListener("scroll", function () {
+      var now = performance.now(), y = window.scrollY, dt = Math.max(8, now - st) / 1000, dy = y - sy;
+      sy = y; st = now;
+      if (fx.visible && dt < 0.25) fx.scrollKick(dy / dt);
+    }, pass);
     // pause offscreen / hidden tab
     if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { fx.setVisible(es[0].isIntersecting); }).observe(el);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) fx.start(); });
