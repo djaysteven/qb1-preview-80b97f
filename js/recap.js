@@ -9,7 +9,7 @@
   var cnts = [].slice.call(sec.querySelectorAll(".cnt"));
   var status = document.getElementById("recapStatus");
   var replay = document.getElementById("recapReplay");
-  var EU = 9, timer = null, raf = null;
+  var EU = 9, timer = null, raf = null, endT = null;
 
   function setCounts(k) { // k = motos revealed so far
     var eu = Math.min(k, EU) * 25, wc = Math.max(0, k - EU) * 25;
@@ -26,6 +26,7 @@
     cnts.forEach(function (c) { c.textContent = c.dataset.to; });
   }
   function reset() {
+    clearTimeout(timer); clearTimeout(endT);
     motos.forEach(function (m) { m.classList.remove("on", "pop"); m.setAttribute("aria-pressed", "false"); });
     segs.forEach(function (s) { s.classList.remove("on", "hot"); });
     setCounts(0); sec.classList.add("armed");
@@ -40,7 +41,7 @@
       if (s) { s.classList.add("on", "hot"); setTimeout(function () { s.classList.remove("hot"); }, 450); }
       k++; setCounts(k);
       if (k < motos.length) timer = setTimeout(step, k === EU ? 420 : 150); // short beat between Europe and the Worlds
-      else { setTimeout(finalState, 500); if (status) status.textContent = "15 of 15 motos won · 375 points: 225 European, 150 World."; }
+      else { endT = setTimeout(finalState, 500); if (status) status.textContent = "15 of 15 motos won · 375 points: 225 European, 150 World."; }
     })();
   }
 
@@ -59,8 +60,13 @@
 
   if (reduce.matches || !("IntersectionObserver" in window)) { finalState(); return; }
   reset();
+  // Replays every time the recap scrolls back into view; re-arms once it's fully off screen.
+  var shown = false;
   var io = new IntersectionObserver(function (es) {
-    es.forEach(function (en) { if (en.isIntersecting) { io.disconnect(); play(); } });
+    es.forEach(function (en) {
+      if (en.isIntersecting && !shown) { shown = true; play(); }
+      else if (!en.isIntersecting && shown) { shown = false; if (!reduce.matches) reset(); }
+    });
   }, { threshold: 0.2 });
   io.observe(document.getElementById("recap"));
   reduce.addEventListener && reduce.addEventListener("change", function () { if (reduce.matches) finalState(); });
