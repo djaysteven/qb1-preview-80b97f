@@ -366,3 +366,10 @@ picture img{display:block;width:100%;height:auto}
 .lb-close{top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right))}
 .lb-prev{left:10px;top:50%;margin-top:-24px}.lb-next{right:10px;top:50%;margin-top:-24px}
 @media (prefers-reduced-motion:reduce){.ph img,.logos img{transition:none}}
+
+/* Full-bleed hero on tall iPhones (Pro Max) and in the home-screen web app:
+   use the LARGE viewport so the video runs under the Safari toolbar / home indicator instead of
+   stopping at the small-viewport line and leaving a dark strip at the bottom. */
+.hero{min-height:100vh;min-height:100lvh}
+@media (display-mode:standalone){.hero{min-height:100vh;min-height:calc(100lvh + env(safe-area-inset-top,0px))}}
+html{background:#0B0B14}
