@@ -230,3 +230,15 @@ body.scroll-lock{overflow:hidden}
 .src{margin:22px auto 0;max-width:72ch;font-size:12.5px;color:var(--muted)}
 .src a{color:#D9D7E3}
 @media (prefers-reduced-motion:reduce){.moto,.ring .seg{transition:none}.moto.pop{animation:none}}
+
+/* Subtle nav logos: the label leads; the QB1 logo is a small ghosted watermark
+   that lights up in full colour (and scatters) only on hover, focus or tap. */
+.fx-btn{gap:6px}
+.fx-wrap{height:clamp(18px,1.8vw,24px);width:62%}
+.fx-wrap .fx{filter:grayscale(1) brightness(1.8);opacity:.16;transition:opacity .3s,filter .3s}
+.fx-btn:hover .fx,.fx-btn:focus-visible .fx,.fx-btn:active .fx{filter:drop-shadow(0 0 1px rgba(255,255,255,.55));opacity:1}
+.fx-label{font-size:13px}
+@media (orientation:portrait),(max-width:699.98px){
+  .fx-wrap{height:18px;width:66%}
+  .fx-label{font-size:11.5px}
+}
