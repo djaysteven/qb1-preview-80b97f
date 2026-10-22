@@ -66,29 +66,123 @@
     </div>
   </section>
 
-  <section class="panel alt" id="results" aria-labelledby="results-h">
+  <section class="panel alt recap" id="results" aria-labelledby="results-h">
     <div class="wrap">
+      <svg class="sr-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+        <symbol id="flag-pt" viewBox="0 0 30 20"><rect width="12" height="20" fill="#046A38"/><rect x="12" width="18" height="20" fill="#DA291C"/><circle cx="12" cy="10" r="4.2" fill="#FFE900"/><circle cx="12" cy="10" r="2.4" fill="#DA291C"/></symbol>
+        <symbol id="flag-hu" viewBox="0 0 30 20"><rect width="30" height="7" fill="#CE2939"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#477050"/></symbol>
+        <symbol id="flag-fr" viewBox="0 0 30 20"><rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/></symbol>
+        <symbol id="flag-cn" viewBox="0 0 30 20"><rect width="30" height="20" fill="#EE1C25"/><polygon fill="#FFDE00" points="5.50,1.90 6.32,4.37 8.92,4.39 6.83,5.93 7.62,8.41 5.50,6.90 3.38,8.41 4.17,5.93 2.08,4.39 4.68,4.37"/><circle cx="11" cy="2.4" r=".9" fill="#FFDE00"/><circle cx="12.8" cy="4.6" r=".9" fill="#FFDE00"/><circle cx="12.8" cy="7.6" r=".9" fill="#FFDE00"/><circle cx="11" cy="9.6" r=".9" fill="#FFDE00"/></symbol>
+        <symbol id="flag-it" viewBox="0 0 30 20"><rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/></symbol>
+      </svg>
       <p class="eyebrow">02 · Results</p>
       <h2 id="results-h">A perfect 2026</h2>
-      <div class="scoreboard">
-        <div class="score"><span class="big">15/15</span><span class="cap">Races won in 2026</span></div>
-        <div class="score"><span class="big">2017 · 2024 · 2026</span><span class="cap">UIM-ABP Aquabike World Champion, Ski GP1</span></div>
-        <div class="score"><span class="big">2026</span><span class="cap">UIM-ABP Aquabike European Champion, Ski GP1 (unbeaten in all 9 motos)</span></div>
-        <div class="score"><span class="big tbc">To confirm</span><span class="cap">Total world titles, all classes and series</span></div>
+      <p class="lead">Fifteen motos, fifteen wins. Every point on offer: <strong>375 of 375</strong>.</p>
+
+      <div class="recap-top" id="recap">
+        <figure class="ring-wrap">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+            <circle class="track" r="52" cx="60" cy="60"/>
+            <g transform="rotate(-90 60 60)">
+          <circle class="seg eu" data-seg="0" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="0.00"/>
+          <circle class="seg eu" data-seg="1" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-21.78"/>
+          <circle class="seg eu" data-seg="2" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-43.56"/>
+          <circle class="seg eu" data-seg="3" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-65.35"/>
+          <circle class="seg eu" data-seg="4" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-87.13"/>
+          <circle class="seg eu" data-seg="5" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-108.91"/>
+          <circle class="seg eu" data-seg="6" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-130.69"/>
+          <circle class="seg eu" data-seg="7" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-152.47"/>
+          <circle class="seg eu" data-seg="8" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-174.25"/>
+          <circle class="seg wc" data-seg="9" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-196.04"/>
+          <circle class="seg wc" data-seg="10" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-217.82"/>
+          <circle class="seg wc" data-seg="11" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-239.60"/>
+          <circle class="seg wc" data-seg="12" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-261.38"/>
+          <circle class="seg wc" data-seg="13" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-283.16"/>
+          <circle class="seg wc" data-seg="14" r="52" cx="60" cy="60" stroke-dasharray="18.78 307.94" stroke-dashoffset="-304.94"/>
+            </g>
+          </svg>
+          <figcaption class="ring-txt"><span class="ring-big"><span class="cnt" data-to="15" aria-hidden="true">15</span><span aria-hidden="true">/15</span><span class="sr-only">15 out of 15</span></span><span class="ring-cap">motos won</span></figcaption>
+        </figure>
+
+        <div class="tally">
+          <div class="t-total"><span class="t-num"><span class="cnt" data-to="375" aria-hidden="true">375</span><span class="sr-only">375</span></span><span class="t-cap">championship points, 2026<br><span class="t-max">maximum possible: 375</span></span></div>
+          <div class="t-split">
+            <div class="t-eu"><span class="t-sub"><span class="cnt" data-to="225" aria-hidden="true">225</span><span class="sr-only">225</span></span><span class="t-lbl">European Ch. · 9 × 25</span></div>
+            <div class="t-wc"><span class="t-sub"><span class="cnt" data-to="150" aria-hidden="true">150</span><span class="sr-only">150</span></span><span class="t-lbl">World Ch. · 6 × 25</span></div>
+          </div>
+          <p class="boom" aria-label="2026 was dynamite">2026 was <span aria-hidden="true">🧨🧨🧨🧨</span></p>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <caption>2026 UIM-ABP Aquabike, Ski Division GP1 (source: aquabike.net)</caption>
-          <thead><tr><th scope="col">Round</th><th scope="col">Date</th><th scope="col">Motos</th></tr></thead>
-          <tbody>
-            <tr><td>European Ch. · GP of Mira, Portugal</td><td>3–5 Jul</td><td>1 · 1 · 1</td></tr>
-            <tr><td>European Ch. · GP of Hungary, Győr</td><td>17–19 Jul</td><td>1 · 1 · 1</td></tr>
-            <tr><td>European Ch. · GP of Vichy, France</td><td>4–6 Sep</td><td>1 · 1 · 1</td></tr>
-            <tr><td>World Ch. · GP of Shanghai, China</td><td>2–3 Oct</td><td>1 · 1 · 1</td></tr>
-            <tr><td>World Ch. · GP of Italy, Olbia</td><td>16–18 Oct</td><td>1 · 1 · 1</td></tr>
-          </tbody>
-        </table>
+
+      <div class="champs" id="recapGrid">
+        <article class="champ eu">
+          <header class="c-head"><h3>European Continental Championship</h3><p class="c-pts"><strong>225</strong> pts · 9/9 · Champion</p></header>
+          <ol class="rounds">
+            <li class="round">
+              <div class="r-head"><svg class="flag" viewBox="0 0 30 20" role="img" aria-label="Portugal"><use href="#flag-pt"/></svg>
+                <span class="r-txt"><span class="r-place">Mira, Portugal</span><span class="r-meta">Round 1 · GP of Mira · 3–5 Jul</span></span></div>
+              <ol class="motos" aria-label="Mira, Portugal: 3 motos">
+                <li><button class="moto" type="button" data-i="0" data-info="Mira, Portugal · 3–5 Jul · Moto 1: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 1</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="1" data-info="Mira, Portugal · 3–5 Jul · Moto 2: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 2</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="2" data-info="Mira, Portugal · 3–5 Jul · Moto 3: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 3</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+              </ol>
+            </li>
+            <li class="round">
+              <div class="r-head"><svg class="flag" viewBox="0 0 30 20" role="img" aria-label="Hungary"><use href="#flag-hu"/></svg>
+                <span class="r-txt"><span class="r-place">Győr, Hungary</span><span class="r-meta">Round 2 · GP of Hungary · 17–19 Jul</span></span></div>
+              <ol class="motos" aria-label="Győr, Hungary: 3 motos">
+                <li><button class="moto" type="button" data-i="3" data-info="Győr, Hungary · 17–19 Jul · Moto 1: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 1</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="4" data-info="Győr, Hungary · 17–19 Jul · Moto 2: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 2</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="5" data-info="Győr, Hungary · 17–19 Jul · Moto 3: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 3</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+              </ol>
+            </li>
+            <li class="round">
+              <div class="r-head"><svg class="flag" viewBox="0 0 30 20" role="img" aria-label="France"><use href="#flag-fr"/></svg>
+                <span class="r-txt"><span class="r-place">Vichy, France</span><span class="r-meta">Round 3 · GP of Vichy · 4–6 Sep</span></span></div>
+              <ol class="motos" aria-label="Vichy, France: 3 motos">
+                <li><button class="moto" type="button" data-i="6" data-info="Vichy, France · 4–6 Sep · Moto 1: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 1</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="7" data-info="Vichy, France · 4–6 Sep · Moto 2: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 2</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="8" data-info="Vichy, France · 4–6 Sep · Moto 3: 1st place, 25 points (European Ch.)"><span class="m-n">Moto 3</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+              </ol>
+            </li>
+          </ol>
+        </article>
+        <article class="champ wc">
+          <header class="c-head"><h3>World Championship</h3><p class="c-pts"><strong>150</strong> pts · 6/6 · Champion</p></header>
+          <ol class="rounds">
+            <li class="round">
+              <div class="r-head"><svg class="flag" viewBox="0 0 30 20" role="img" aria-label="China"><use href="#flag-cn"/></svg>
+                <span class="r-txt"><span class="r-place">Shanghai, China</span><span class="r-meta">Round 4 · GP of Shanghai · 2–3 Oct</span></span></div>
+              <ol class="motos" aria-label="Shanghai, China: 3 motos">
+                <li><button class="moto" type="button" data-i="9" data-info="Shanghai, China · 2–3 Oct · Moto 1: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 1</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="10" data-info="Shanghai, China · 2–3 Oct · Moto 2: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 2</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="11" data-info="Shanghai, China · 2–3 Oct · Moto 3: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 3</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+              </ol>
+            </li>
+            <li class="round">
+              <div class="r-head"><svg class="flag" viewBox="0 0 30 20" role="img" aria-label="Italy"><use href="#flag-it"/></svg>
+                <span class="r-txt"><span class="r-place">Olbia, Italy</span><span class="r-meta">Round 5 · Regione Sardegna GP of Italy · 16–18 Oct</span></span></div>
+              <ol class="motos" aria-label="Olbia, Italy: 3 motos">
+                <li><button class="moto" type="button" data-i="12" data-info="Olbia, Italy · 16–18 Oct · Moto 1: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 1</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="13" data-info="Olbia, Italy · 16–18 Oct · Moto 2: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 2</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+                <li><button class="moto" type="button" data-i="14" data-info="Olbia, Italy · 16–18 Oct · Moto 3: 1st place, 25 points (World Ch.)"><span class="m-n">Moto 3</span><span class="m-p">P1</span><span class="m-pts">25<small> pts</small></span></button></li>
+              </ol>
+            </li>
+          </ol>
+        </article>
       </div>
+
+      <div class="recap-ctl">
+        <button class="replay" type="button" id="recapReplay" hidden>↻ Replay the season</button>
+        <p class="recap-status" id="recapStatus" aria-live="polite">Tap any moto for details.</p>
+      </div>
+
+      <ul class="titles" aria-label="Titles">
+        <li><span class="ti-big">2017 · 2024 · 2026</span><span class="ti-cap">UIM-ABP Aquabike World Champion, Ski Division GP1</span></li>
+        <li><span class="ti-big">2026</span><span class="ti-cap">UIM-ABP Aquabike European Champion, Ski Division GP1</span></li>
+      </ul>
+
+      <p class="src">Sources: official UIM-ABP Aquabike circuit standings, Ski Division GP1, on <a href="https://www.aquabike.net/riders/2026/quinten-bossche" target="_blank" rel="noopener noreferrer">aquabike.net</a> (UIM), as shared in <a href="https://www.instagram.com/quintenbossche98/" target="_blank" rel="noopener noreferrer">@quintenbossche98</a>’s Instagram story.</p>
     </div>
   </section>
 
@@ -157,5 +251,6 @@
 <script src="js/videos.js" defer></script>
 <script src="js/particles.js" defer></script>
 <script src="js/main.js" defer></script>
+<script src="js/recap.js" defer></script>
 </body>
 </html>
