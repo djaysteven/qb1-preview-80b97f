@@ -18,32 +18,38 @@
       c.textContent = to === 15 ? k : to === 375 ? eu + wc : to === 225 ? eu : wc;
     });
   }
+  // Ring + counters (top block): climb 0 to 15 / 375 when it scrolls in.
   function finalState() {
-    clearTimeout(timer); cancelAnimationFrame(raf);
-    sec.classList.remove("armed");
-    motos.forEach(function (m) { m.classList.add("on"); });
+    clearTimeout(timer); clearTimeout(endT);
     segs.forEach(function (s) { s.classList.add("on"); s.classList.remove("hot"); });
     cnts.forEach(function (c) { c.textContent = c.dataset.to; });
   }
   function reset() {
     clearTimeout(timer); clearTimeout(endT);
-    motos.forEach(function (m) { m.classList.remove("on", "pop"); m.setAttribute("aria-pressed", "false"); });
     segs.forEach(function (s) { s.classList.remove("on", "hot"); });
-    setCounts(0); sec.classList.add("armed");
+    setCounts(0);
   }
   function play() {
     if (reduce.matches) { finalState(); return; }
     reset();
     var k = 0;
     (function step() {
-      var m = motos[k], s = segs[k];
-      m.classList.add("on");
+      var s = segs[k];
       if (s) { s.classList.add("on", "hot"); setTimeout(function () { s.classList.remove("hot"); }, 450); }
       k++; setCounts(k);
-      if (k < motos.length) timer = setTimeout(step, k === EU ? 420 : 150); // short beat between Europe and the Worlds
+      if (k < segs.length) timer = setTimeout(step, k === EU ? 420 : 150); // short beat between Europe and the Worlds
       else { endT = setTimeout(finalState, 500); if (status) status.textContent = "15 of 15 motos won · 375 points: 225 European, 150 World."; }
     })();
   }
+  // Race cards: each one flips its 3 motos in order when it scrolls in, and resets once fully off screen.
+  var rounds = [].slice.call(sec.querySelectorAll(".round"));
+  function fillRound(r) {
+    clearTimeout(r._t); var ms = [].slice.call(r.querySelectorAll(".moto")), i = 0;
+    ms.forEach(function (m) { m.classList.remove("on"); });
+    (function nx() { if (i < ms.length) { ms[i++].classList.add("on"); r._t = setTimeout(nx, 180); } })();
+  }
+  function emptyRound(r) { clearTimeout(r._t); r.querySelectorAll(".moto").forEach(function (m) { m.classList.remove("on", "pop"); m.setAttribute("aria-pressed", "false"); }); }
+  function allOn() { motos.forEach(function (m) { m.classList.add("on"); }); }
 
   // Tap / click / Enter / Space on a moto: details in one polite live line.
   sec.addEventListener("click", function (e) {
@@ -56,18 +62,25 @@
   });
   motos.forEach(function (m) { m.setAttribute("aria-pressed", "false"); });
 
-  if (replay) { replay.hidden = false; replay.addEventListener("click", play); }
+  if (replay) { replay.hidden = false; replay.addEventListener("click", function () { play(); rounds.forEach(fillRound); }); }
 
-  if (reduce.matches || !("IntersectionObserver" in window)) { finalState(); return; }
-  reset();
-  // Replays every time the recap scrolls back into view; re-arms only once it's fully off screen.
+  if (reduce.matches || !("IntersectionObserver" in window)) { finalState(); allOn(); return; }
+  sec.classList.add("armed"); reset(); rounds.forEach(emptyRound);
+  var opts = { threshold: 0, rootMargin: "0px 0px -12% 0px" };
   var shown = false;
-  var io = new IntersectionObserver(function (es) {
+  new IntersectionObserver(function (es) {
     es.forEach(function (en) {
       if (en.isIntersecting && !shown) { shown = true; play(); }
-      else if (!en.isIntersecting && shown) { shown = false; if (!reduce.matches) reset(); }
+      else if (!en.isIntersecting && shown) { shown = false; reset(); }
     });
-  }, { threshold: 0, rootMargin: "0px 0px -12% 0px" }); // threshold 0: the recap is taller than a phone screen, so a ratio threshold reset it mid-scroll
-  io.observe(sec); // whole Results section, so the race tiles below the ring stay filled while visible
-  reduce.addEventListener && reduce.addEventListener("change", function () { if (reduce.matches) finalState(); });
+  }, opts).observe(document.getElementById("recap"));
+  var rio = new IntersectionObserver(function (es) {
+    es.forEach(function (en) {
+      var r = en.target;
+      if (en.isIntersecting && !r._shown) { r._shown = true; fillRound(r); }
+      else if (!en.isIntersecting && r._shown) { r._shown = false; emptyRound(r); }
+    });
+  }, opts);
+  rounds.forEach(function (r) { rio.observe(r); });
+  reduce.addEventListener && reduce.addEventListener("change", function () { if (reduce.matches) { sec.classList.remove("armed"); finalState(); allOn(); } });
 })();
