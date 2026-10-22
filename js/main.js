@@ -61,6 +61,17 @@
         window.QB1_heroFX = hfx;
       }
     });
+    // Touch screens have no hover: cycle the effect through the buttons, one at a time.
+    if (window.matchMedia("(hover: none)").matches) {
+      var ci = 0, cyc = function () {
+        if (reduce.matches || document.hidden) return setTimeout(cyc, 3000);
+        var btns = document.querySelectorAll(".fx-btn"); if (!btns.length) return;
+        var b = btns[ci++ % btns.length];
+        if (b._fxGlow) { b._fxGlow(); setTimeout(function () { b._fxRest(); }, 3600); }
+        setTimeout(cyc, 4200);
+      };
+      setTimeout(cyc, 2500);
+    }
     var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fxs.forEach(function (f) { f.resize(); }); }, 150); });
   }
   // On touch, let the scatter play briefly before scrolling to the section.
@@ -72,7 +83,9 @@
       if (!target) return;
       e.preventDefault();
       var go = function () { target.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth" }); history.replaceState(null, "", id); target.setAttribute("tabindex", "-1"); target.focus({ preventScroll: true }); };
-      if (touch && !reduce.matches) setTimeout(go, 380); else go();
+      // Touch: glow, short hold, crumble, then scroll (a full 2s hold would make taps feel broken).
+      if (touch && !reduce.matches && btn._fxGlow) btn._fxGlow(undefined, undefined, 650, function () { go(); btn._fxRest(); });
+      else go();
       touch = false;
     });
   });

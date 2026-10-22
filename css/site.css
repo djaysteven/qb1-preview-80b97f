@@ -236,7 +236,9 @@ body.scroll-lock{overflow:hidden}
 .fx-btn{gap:6px}
 .fx-wrap{height:clamp(18px,1.8vw,24px);width:62%}
 .fx-wrap .fx{filter:grayscale(1) brightness(1.8);opacity:.16;transition:opacity .3s,filter .3s}
-.fx-btn:hover .fx,.fx-btn:focus-visible .fx,.fx-btn:active .fx{filter:drop-shadow(0 0 1px rgba(255,255,255,.55));opacity:1}
+.fx-wrap .fx{transition:opacity .45s,filter .45s}
+.fx-btn.lit .fx{opacity:1;filter:drop-shadow(0 0 1px rgba(255,255,255,.6)) drop-shadow(0 0 8px rgba(247,148,58,.75)) drop-shadow(0 0 18px rgba(124,58,237,.45))}
+.fx-btn.lit{border-color:rgba(247,148,58,.6)}
 .fx-label{font-size:13px}
 @media (orientation:portrait),(max-width:699.98px){
   .fx-wrap{height:18px;width:66%}

@@ -202,16 +202,20 @@
 
   /* Nav button: hover (mouse) scatters, leave melts; keyboard focus scatters, blur melts;
      touch tap = quick scatter then melt (navigation is delayed slightly by main.js). */
+  /* Nav buttons: glow up in full colour, hold 2s so the logo is readable, then crumble.
+     Leave / blur melts it back and fades it to the ghosted rest state. */
+  LogoFX.HOLD_MS = 2000;
   LogoFX.bindButton = function (el, fx) {
-    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") { var p = local(fx, e); fx.scatter(p[0], p[1]); } });
-    el.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse" && document.activeElement !== el) fx.reassemble(); });
-    el.addEventListener("focus", function () { if (el.matches(":focus-visible")) fx.scatter(); });
-    el.addEventListener("blur", function () { fx.reassemble(); });
-    el.addEventListener("pointerdown", function (e) {
-      if (e.pointerType === "mouse") return;
-      var p = local(fx, e); fx.scatter(p[0], p[1]);
-      setTimeout(function () { fx.reassemble(); }, 700);
-    });
+    var t = null;
+    el._fxGlow = function (cx, cy, hold, after) {
+      clearTimeout(t); el.classList.add("lit");
+      t = setTimeout(function () { fx.scatter(cx, cy); if (after) t = setTimeout(after, 900); }, hold == null ? LogoFX.HOLD_MS : hold);
+    };
+    el._fxRest = function () { clearTimeout(t); t = null; if (fx.isOpen()) fx.reassemble(); el.classList.remove("lit"); };
+    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") { var p = local(fx, e); el._fxGlow(p[0], p[1]); } });
+    el.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse" && document.activeElement !== el) el._fxRest(); });
+    el.addEventListener("focus", function () { if (el.matches(":focus-visible")) el._fxGlow(); });
+    el.addEventListener("blur", function () { el._fxRest(); });
   };
   /* Stage (hero logo), exactly like Mist: mouse hover scatters / leave melts; touch tap toggles
      (tap vs scroll: <10px and <500ms); keyboard Enter/Space toggles; focus-visible scatters. */
