@@ -60,14 +60,14 @@
 
   if (reduce.matches || !("IntersectionObserver" in window)) { finalState(); return; }
   reset();
-  // Replays every time the recap scrolls back into view; re-arms once it's fully off screen.
+  // Replays every time the recap scrolls back into view; re-arms only once it's fully off screen.
   var shown = false;
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (en) {
       if (en.isIntersecting && !shown) { shown = true; play(); }
       else if (!en.isIntersecting && shown) { shown = false; if (!reduce.matches) reset(); }
     });
-  }, { threshold: 0.2 });
-  io.observe(document.getElementById("recap"));
+  }, { threshold: 0, rootMargin: "0px 0px -12% 0px" }); // threshold 0: the recap is taller than a phone screen, so a ratio threshold reset it mid-scroll
+  io.observe(sec); // whole Results section, so the race tiles below the ring stay filled while visible
   reduce.addEventListener && reduce.addEventListener("change", function () { if (reduce.matches) finalState(); });
 })();
