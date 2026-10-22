@@ -373,3 +373,9 @@ picture img{display:block;width:100%;height:auto}
 .hero{min-height:100vh;min-height:100lvh}
 @media (display-mode:standalone){.hero{min-height:100vh;min-height:calc(100lvh + env(safe-area-inset-top,0px))}}
 html{background:#0B0B14}
+
+/* Timeline fix: while a card fades in, it forms its own stacking layer, so the rail (painted later)
+   showed on top of the photo. Pin the rail underneath and the items above it. */
+.tl::before,.tl::after{z-index:0}
+.tl-item{z-index:1}
+.tl-card{background:rgba(21,21,39,.95)}
