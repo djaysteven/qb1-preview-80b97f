@@ -379,3 +379,13 @@ html{background:#0B0B14}
 .tl::before,.tl::after{z-index:0}
 .tl-item{z-index:1}
 .tl-card{background:rgba(21,21,39,.95)}
+/* HS Racing / Holeshots: Quinten's own parts line, featured above the partner wall */
+.hs-own{display:grid;justify-items:center;gap:6px;max-width:1000px;margin:26px auto 0;padding:22px 20px;border-radius:14px;text-decoration:none;text-align:center;color:#fff;
+  border:1px solid rgba(247,148,58,.45);background:rgba(247,148,58,.06);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:border-color .3s,background .3s}
+.hs-own:hover,.hs-own:focus-visible{border-color:rgba(247,148,58,.8);background:rgba(247,148,58,.11)}
+.hs-k{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(247,148,58,.95)}
+.hs-mark{font-family:var(--display);font-size:clamp(20px,4.5vw,28px);letter-spacing:.06em;text-transform:uppercase}
+.hs-mark i{font-style:normal;color:rgba(247,148,58,.95)}
+.hs-d{color:rgba(255,255,255,.7);font-size:15px}
+.hs-ig{font-size:13px;color:rgba(255,255,255,.55);letter-spacing:.04em}
+.hs-own+.logos{margin-top:12px}
