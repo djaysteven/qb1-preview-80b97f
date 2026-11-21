@@ -433,3 +433,9 @@ html{background:#0B0B14}
 .facts{display:flex;flex-wrap:wrap;justify-content:center}
 .facts div{flex:1 1 220px;max-width:262px}
 @media (max-width:520px){.facts div{max-width:none}}
+/* v17: "Multiple World Champion" leads the titles row as a full-width card */
+.titles{max-width:860px}
+.titles li:first-child{grid-column:1/-1}
+.titles li:first-child .ti-big{font-size:clamp(26px,4vw,42px)}
+@media (min-width:640px){.titles{grid-template-columns:repeat(2,1fr)}}
+.ti-big{font-size:clamp(24px,3vw,32px)}
