@@ -51,6 +51,11 @@
     var s = Math.min(aw / iw, ah / ih), w = iw * s, h = ih * s;
     this.home = { x: (this.W - w) / 2, y: (this.H - h) / 2, w: w, h: h };
     this.k = Math.max(0.35, Math.min(1.2, w / 720));       // physics scale: 1 = 720 px desktop logo
+    // v13: the canvas has extra padding so burst particles fly freely; dust stays in the original
+    // box around the logo (128% x 180% of the logo, as before the padding was added).
+    var cx = this.W / 2, cy = this.H / 2;
+    this.db = { x: Math.max(0, cx - 0.64 * w), y: Math.max(0, cy - 0.9 * h) };
+    this.db.w = Math.min(this.W, 1.28 * w); this.db.h = Math.min(this.H, 1.8 * h);
   };
   // Crisp rest image with the old CSS look (thin white rim + soft drop shadow) baked in once.
   P.bakeRest = function () {
@@ -126,7 +131,7 @@
     this.gl = []; for (i = 0; i < Math.round(n * 0.015); i++) this.gl.push((Math.random() * n) | 0);
   };
   P.makeFluid = function () {
-    var cs = this.cs = Math.max(8, this.W / 64);
+    var cs = this.cs = Math.max(8, this.home.w / 50);      // same cell size as before the padding
     this.GW = Math.ceil(this.W / cs) + 1; this.GH = Math.ceil(this.H / cs) + 1;
     var m = this.GW * this.GH;
     this.u = new Float32Array(m); this.v = new Float32Array(m); this.u2 = new Float32Array(m); this.v2 = new Float32Array(m);
@@ -138,7 +143,7 @@
     var cols = [this.glints[0], this.glints[1], this.glints[2]];
     for (var i = 0; i < nd; i++) {
       var z = Math.random();
-      this.dust.push({ x: Math.random() * this.W, y: Math.random() * this.H, vx: 0, vy: 0, z: z,
+      this.dust.push({ x: this.db.x + Math.random() * this.db.w, y: this.db.y + Math.random() * this.db.h, vx: 0, vy: 0, z: z,
         s: (0.6 + z * 2.2) * Math.max(0.7, this.k), a: 0.08 + z * 0.3, ph: Math.random() * TAU, spr: cols[(Math.random() * 3) | 0] });
     }
   };
@@ -315,8 +320,9 @@
       var ty = Math.sin(t * 0.17 + p.ph * 1.3 + p.x * 0.01) * drift * 0.6 - 3 * p.z + f[1] * fl * (0.6 + p.z);
       p.vx += (tx - p.vx) * Math.min(1, dt * 2.5); p.vy += (ty - p.vy) * Math.min(1, dt * 2.5);
       p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.x < -10) p.x += W + 20; else if (p.x > W + 10) p.x -= W + 20;
-      if (p.y < -10) p.y += H + 20; else if (p.y > H + 10) p.y -= H + 20;
+      var B = this.db;
+      if (p.x < B.x - 10) p.x += B.w + 20; else if (p.x > B.x + B.w + 10) p.x -= B.w + 20;
+      if (p.y < B.y - 10) p.y += B.h + 20; else if (p.y > B.y + B.h + 10) p.y -= B.h + 20;
     }
   };
 

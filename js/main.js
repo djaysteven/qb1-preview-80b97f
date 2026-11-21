@@ -74,10 +74,10 @@
         if (!cv) return;
         var hfx;
         if (window.HeroFX) {
-          hfx = new window.HeroFX(cv, img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
+          hfx = new window.HeroFX(cv, img, { bleedFX: 0.40 / 1.80, bleedFY: 1.30 / 3.60 });
           window.HeroFX.bind(heroEl, hfx, heroEl.closest(".hero") || heroEl);
         } else {
-          hfx = new window.LogoFX(cv, img, { bleedFX: 0.14 / 1.28, bleedFY: 0.40 / 1.80 });
+          hfx = new window.LogoFX(cv, img, { bleedFX: 0.40 / 1.80, bleedFY: 1.30 / 3.60 });
           window.LogoFX.bindStage(heroEl, hfx);
         }
         fxs.push(hfx);
