@@ -36,7 +36,7 @@ a{color:inherit}
   linear-gradient(180deg,rgba(11,11,20,.45) 0%,rgba(11,11,20,0) 22%,rgba(11,11,20,0) 62%,rgba(11,11,20,.7) 100%)}
 .hero-center{width:min(1180px,100%);padding:max(28px,env(safe-area-inset-top)) clamp(16px,4vw,48px) max(28px,env(safe-area-inset-bottom));
   display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.6vh,18px)}
-.hero-logo{position:relative;width:min(56vw,720px);aspect-ratio:2664/680;border-radius:16px;cursor:pointer;touch-action:pan-y;outline:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.hero-logo{position:relative;width:min(56vw,720px);aspect-ratio:2401/696;border-radius:16px;cursor:pointer;touch-action:pan-y;outline:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .hero-logo:focus-visible{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--focus)}
 .hero-logo-img{width:100%;height:100%;display:block;filter:drop-shadow(0 0 1px rgba(255,255,255,.75)) drop-shadow(0 6px 24px rgba(0,0,0,.55))}
 .hero-fx{position:absolute;left:-14%;top:-40%;width:128%;height:180%;pointer-events:none}
@@ -389,3 +389,53 @@ html{background:#0B0B14}
 .hs-d{color:rgba(255,255,255,.7);font-size:15px}
 .hs-ig{font-size:13px;color:rgba(255,255,255,.55);letter-spacing:.04em}
 .hs-own+.logos{margin-top:12px}
+
+/* ---------- v15: new footage from Quinten (2026-11-18) ---------- */
+/* About portrait (studio shot, white background) */
+.portrait{margin:34px auto 0;width:min(340px,72vw);border-radius:calc(var(--radius) + 4px);overflow:hidden;border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 6px rgba(255,255,255,.03)}
+.portrait img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
+
+/* Intro reel: centred cinematic block, text-only glass controls */
+.reel{background:radial-gradient(80% 60% at 50% 55%,rgba(124,58,237,.10),transparent 70%),var(--bg)}
+.reel-frame{position:relative;margin:26px auto 0;max-width:1040px;aspect-ratio:16/9;border-radius:calc(var(--radius) + 4px);overflow:hidden;
+  background:#000;border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 46px rgba(247,148,58,.10)}
+.reel-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.reel-ctrl{position:absolute;left:0;right:0;bottom:clamp(10px,2.4vw,22px);display:flex;justify-content:center;gap:10px;pointer-events:none}
+.reel-btn{pointer-events:auto;position:relative;min-height:44px;padding:0 20px;border-radius:999px;cursor:pointer;color:#F3F2F7;
+  font:600 12px/1 var(--font);letter-spacing:.2em;text-transform:uppercase;overflow:hidden;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(10px) saturate(1.2);backdrop-filter:blur(10px) saturate(1.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:border-color .3s,box-shadow .3s,text-shadow .3s}
+.reel-btn::after{content:"";position:absolute;left:50%;right:50%;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:left .35s ease,right .35s ease,opacity .25s}
+.reel-btn:hover,.reel-btn:focus-visible{border-color:rgba(247,148,58,.7);text-shadow:0 0 10px rgba(247,148,58,.85);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 18px rgba(247,148,58,.28),0 0 34px rgba(124,58,237,.18)}
+.reel-btn:hover::after,.reel-btn:focus-visible::after{left:22%;right:22%;opacity:1}
+@media (prefers-reduced-motion:reduce){.reel-btn,.reel-btn::after{transition:none}}
+
+/* Contact: two inboxes, partners@ leads */
+.mails{display:flex;flex-wrap:wrap;justify-content:center;gap:18px 28px;margin-top:8px}
+.mails .mail{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mail-k{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.mail-btn.mail-alt{color:var(--text);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);box-shadow:none}
+.mail-btn.mail-alt:hover,.mail-btn.mail-alt:focus-visible{border-color:rgba(247,148,58,.7);box-shadow:0 0 18px rgba(247,148,58,.25)}
+.mails+.note{margin-top:16px}
+
+/* Footer legal line */
+.foot .legal{margin:10px auto 0;text-align:center;font-size:11px;letter-spacing:.02em;color:rgba(169,167,188,.7);padding:0 16px}
+.foot .legal a{color:inherit}
+@media (max-width:699.98px){
+  .reel-frame{margin-top:18px;border-radius:14px}
+  .reel-ctrl{bottom:8px;gap:8px}
+  .reel-btn{min-height:34px;padding:0 14px;font-size:10.5px;letter-spacing:.16em}
+  .reel-btn::after{bottom:5px}
+}
+/* keep fact tiles centred when the last row is not full */
+.facts{display:flex;flex-wrap:wrap;justify-content:center}
+.facts div{flex:1 1 220px;max-width:262px}
+@media (max-width:520px){.facts div{max-width:none}}
+/* v17: "Multiple World Champion" leads the titles row as a full-width card */
+.titles{max-width:860px}
+.titles li:first-child{grid-column:1/-1}
+.titles li:first-child .ti-big{font-size:clamp(26px,4vw,42px)}
+@media (min-width:640px){.titles{grid-template-columns:repeat(2,1fr)}}
+.ti-big{font-size:clamp(24px,3vw,32px)}

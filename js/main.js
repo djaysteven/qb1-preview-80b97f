@@ -5,6 +5,15 @@
 
   /* ---------- background video (lazy, media-query source, reduced-motion = poster only) ---------- */
   var v = document.getElementById("heroVideo");
+  // Preview-only variants (not linked anywhere): ?hero=intro swaps the hero background to Quinten's new intro film.
+  var qs = new URLSearchParams(location.search);
+  if (v && qs.get("hero") === "intro") {
+    v.dataset.mobileMp4 = "media/qb-intro-720p.mp4"; v.dataset.desktopMp4 = "media/qb-intro-1080p.mp4";
+    v.dataset.mobileWebm = ""; v.dataset.desktopWebm = "";
+    document.querySelectorAll(".hero-poster source, .hero-poster img").forEach(function (el) {
+      if (el.tagName === "SOURCE") el.srcset = "media/qb-intro-poster-720p.jpg"; else el.src = "media/qb-intro-poster-1080p.jpg";
+    });
+  }
   var saveData = navigator.connection && navigator.connection.saveData;
   function tryPlay() {
     if (!v || !v.dataset.loaded) return;
@@ -27,7 +36,7 @@
     v.preload = "auto";
     v.innerHTML = "";
     [["mp4", "video/mp4"], ["webm", "video/webm"]].forEach(function (t) { // MP4 first: most reliable on iPhone Safari
-      var s = document.createElement("source"); s.src = v.dataset[m + t[0].charAt(0).toUpperCase() + t[0].slice(1)]; s.type = t[1]; v.appendChild(s);
+      var u = v.dataset[m + t[0].charAt(0).toUpperCase() + t[0].slice(1)]; if (!u) return; var s = document.createElement("source"); s.src = u; s.type = t[1]; v.appendChild(s);
     });
     v.load();
     tryPlay();
@@ -44,7 +53,15 @@
   }
 
   /* ---------- logo particle buttons ---------- */
-  var LOGO_SOURCES = ["assets/logo.svg", "assets/logo-placeholder.svg"]; // swap the logo by replacing assets/logo.svg
+  // Default (Final Beta 1): Quinten's original QB1 RACING logo (assets/logo-original/), traced logo as fallback.
+  var LOGO_SOURCES = ["assets/logo-original/qb1-racing-original.png", "assets/logo.svg", "assets/logo-placeholder.svg"];
+  // Comparison-only switch: ?logo=traced shows the old auto-traced logo.
+  if (qs.get("logo") === "traced") {
+    LOGO_SOURCES = ["assets/logo.svg", "assets/logo-placeholder.svg"];
+    var hl = document.getElementById("heroLogo"), hi = hl && hl.querySelector(".hero-logo-img");
+    if (hi) { hi.src = LOGO_SOURCES[0]; hi.width = 2664; hi.height = 680; }
+    if (hl) hl.style.aspectRatio = "2664 / 680";
+  }
   var fxs = [];
   var heroEl = document.getElementById("heroLogo");
   function heroStatic() { if (heroEl) heroEl.classList.remove("fx-ready"); } // fall back to the plain <img>

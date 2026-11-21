@@ -38,7 +38,7 @@
       if (s) { s.classList.add("on", "hot"); setTimeout(function () { s.classList.remove("hot"); }, 450); }
       k++; setCounts(k);
       if (k < segs.length) timer = setTimeout(step, k === EU ? 420 : 150); // short beat between Europe and the Worlds
-      else { endT = setTimeout(finalState, 500); if (status) status.textContent = "15 of 15 motos won · 375 points: 225 European, 150 World."; }
+      else { endT = setTimeout(finalState, 500); if (status) status.textContent = "2026 season: 15 of 15 motos won · 375 points: 225 European, 150 World."; }
     })();
   }
   // Race cards: each one flips its 3 motos in order when it scrolls in, and resets once fully off screen.

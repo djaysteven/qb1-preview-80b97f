@@ -53,13 +53,14 @@
   }
 
   /* ---------- logo particle buttons ---------- */
-  var LOGO_SOURCES = ["assets/logo.svg", "assets/logo-placeholder.svg"]; // swap the logo by replacing assets/logo.svg
-  // Preview-only variant: ?logo=original uses Quinten's original vector logo (assets/logo-original/) for the hero.
-  if (qs.get("logo") === "original") {
-    LOGO_SOURCES = ["assets/logo-original/qb1-racing-original.png", "assets/logo.svg"];
+  // Default (Final Beta 1): Quinten's original QB1 RACING logo (assets/logo-original/), traced logo as fallback.
+  var LOGO_SOURCES = ["assets/logo-original/qb1-racing-original.png", "assets/logo.svg", "assets/logo-placeholder.svg"];
+  // Comparison-only switch: ?logo=traced shows the old auto-traced logo.
+  if (qs.get("logo") === "traced") {
+    LOGO_SOURCES = ["assets/logo.svg", "assets/logo-placeholder.svg"];
     var hl = document.getElementById("heroLogo"), hi = hl && hl.querySelector(".hero-logo-img");
-    if (hi) { hi.src = LOGO_SOURCES[0]; hi.width = 2401; hi.height = 696; }
-    if (hl) hl.style.aspectRatio = "2401 / 696";
+    if (hi) { hi.src = LOGO_SOURCES[0]; hi.width = 2664; hi.height = 680; }
+    if (hl) hl.style.aspectRatio = "2664 / 680";
   }
   var fxs = [];
   var heroEl = document.getElementById("heroLogo");
